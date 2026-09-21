@@ -10,3 +10,8 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Lecture notes (reference only, not part of the assignment)
+class2.md
+class2_with_solution.md
+class3.md
