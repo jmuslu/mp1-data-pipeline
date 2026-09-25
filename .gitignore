@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *.pyc
 
+# Virtual environment
+venv/
+
 # IDE
 .vscode/
 .idea/
@@ -15,3 +18,5 @@ Thumbs.db
 class2.md
 class2_with_solution.md
 class3.md
+class4.md
+class5.md
