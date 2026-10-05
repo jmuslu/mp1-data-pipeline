@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 from data_loaders import load_data
+from data_processor import process_data, create_cleaning_report
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def setup_logging(verbose=False):
 
     logging.basicConfig(
         level=level,
-        format= "%(asctime)s %(levelname)-8s %(message)s",
+        format="%(asctime)s %(levelname)-8s %(name)s — %(message)s",
         datefmt="%H:%M:%S",
     )
     
@@ -36,9 +37,9 @@ def parse_arguments():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="process data file and export as csv or json")  
 
-    parser.add_argument("--input", "-i", required=True)          
-    parser.add_argument("--output", "-o", required=True)         
-    parser.add_argument("--format", choices=["csv","json"], default="csv")  
+    parser.add_argument("--input", "-i", required=True)
+    parser.add_argument("--config", "-c", required=True)                # blank 1: the flag name for the config path
+    parser.add_argument("--output", "-o", required=True)
     parser.add_argument("--verbose", "-v", action="store_true")          
 
     return parser.parse_args()
@@ -67,10 +68,31 @@ def main():
     if not validate_input(args.input):                       # blank D: which function checks the input file?
         sys.exit(1)                                 # blank E: which sys function stops the program with an exit code?
 
+    if not validate_input(args.config):                              # blank 2: which path are we validating now?
+        sys.exit(1)
+
     try:
         data = load_data(args.input)
+        config = load_data(args.config)                                    # blank 3: load the config, same loader as the data
     except ValueError:
         sys.exit(1)
+
+    df_original = data.copy()                                        # blank 4: save a copy of the data before cleaning
+
+    try:
+        data = process_data(data, config)                                 # blank 5: process the data (which function, which two arguments?)
+    except ValueError:
+        sys.exit(1)
+
+    report = create_cleaning_report(df_before=df_original, df_after=data)                                   # blank 6: build the report from the before and after DataFrames
+    print(report)                                               # blank 7: print the report
+
+    logger.info(                                              # blank 8: log level for normal progress
+        "Processing complete: %d → %d rows", report["rows_before"], report["rows_after"]   # blank 9: rows after, from the report
+    )
+
+    data.to_csv(args.output, index=False)                       # blank 10: save the cleaned DataFrame as CSV
+    logger.info("Saved cleaned data to %s", args.output)
 
 
 if __name__ == "__main__":
