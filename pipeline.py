@@ -12,6 +12,8 @@ import logging
 import sys
 from pathlib import Path
 
+from data_loaders import load_data
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,6 +66,11 @@ def main():
 
     if not validate_input(args.input):                       # blank D: which function checks the input file?
         sys.exit(1)                                 # blank E: which sys function stops the program with an exit code?
+
+    try:
+        data = load_data(args.input)
+    except ValueError:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

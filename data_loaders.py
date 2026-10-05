@@ -50,17 +50,16 @@ def load_data(filepath):
     """Load a file based on its extension.
     filepath is a string, such as 'fixtures/sample.csv'
     """
-    path = ___                    # blank A: turn the string filepath into a Path object
+    path = Path(filepath)         # blank A: turn the string filepath into a Path object
 
-    ext = ___                     # blank B: get the lowercase file extension from path
+    ext = path.suffix.lower()     # blank B: get the lowercase file extension from path
 
     if ext == ".csv":
-        return ___(___)           # blank C: call the right loader, passing `path`
+        return load_csv(path)     # blank C: call the right loader, passing `path`
     elif ext == ".json":
-        return ___(___)           # blank D: same idea, for JSON
+        return load_json(path)    # blank D: same idea, for JSON
     elif ext == ".yaml":
-        return ___(___)           # blank E: same idea, for YAML
+        return load_yaml(path)    # blank E: same idea, for YAML
     else:
-        logger.___("...")         # blank F: log at the right level, with a message like
-                                   #          "Unsupported file format: .txt"
-        raise ___(___)            # blank G: raise the right exception type, with a message
+        logger.error("Unsupported file format: %s", ext)   # blank F
+        raise ValueError(f"Unsupported file format: {ext}")  # blank G
