@@ -10,27 +10,18 @@ Usage:
 import argparse
 import logging
 import sys
-from pathlib import Path
 
-from data_loaders import load_data
-from data_processor import process_data, create_cleaning_report
+from src import (
+    create_cleaning_report,
+    load_data,
+    process_data,
+    save_data,
+    setup_logging,
+    validate_dataframe,
+    validate_input,
+)
 
 logger = logging.getLogger(__name__)
-
-
-def setup_logging(verbose=False):
-    """Configure logging for the pipeline."""
-    if verbose: 
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s %(levelname)-8s %(name)s — %(message)s",
-        datefmt="%H:%M:%S",
-    )
-    
 
 
 def parse_arguments():
@@ -43,16 +34,6 @@ def parse_arguments():
     parser.add_argument("--verbose", "-v", action="store_true")          
 
     return parser.parse_args()
-
-
-def validate_input(filepath):
-    """Check whether the input path exists and is a file."""
-    if Path(filepath).is_file():
-        logger.info("Input file validated: %s", filepath)     
-        return True                                            
-    else:
-        logger.error("Input file not found: %s", filepath)     
-        return False                                         
 
 
 def main():
@@ -77,22 +58,43 @@ def main():
     except ValueError:
         sys.exit(1)
 
-    df_original = data.copy()                                        # blank 4: save a copy of the data before cleaning
+    # blank 11: read the two lists from the "validation" section of config
+    #           (chained brackets, like config["processing"]["missing"])
+    required_columns = config["validation"]["required_columns"]
+    numeric_columns = config["validation"]["numeric_columns"]
+    rows_before_validation = len(data)
 
+    # blank 12: its own try/except; call validate_dataframe with the data and
+    #           the two lists, and USE the returned DataFrame (assign to data)
     try:
-        data = process_data(data, config)                                 # blank 5: process the data (which function, which two arguments?)
+        data = validate_dataframe(data, required_columns, numeric_columns)
     except ValueError:
         sys.exit(1)
 
-    report = create_cleaning_report(df_before=df_original, df_after=data)                                   # blank 6: build the report from the before and after DataFrames
-    print(report)                                               # blank 7: print the report
+    # blank 13: INFO log: "Validation complete: 100 -> 98 rows"
+    logger.info("Validation complete: %d -> %d rows", rows_before_validation, len(data))
 
-    logger.info(                                              # blank 8: log level for normal progress
-        "Processing complete: %d → %d rows", report["rows_before"], report["rows_after"]   # blank 9: rows after, from the report
+    # blank 4 (moved): copy AFTER validation, so the report starts from the
+    # validated data (the expected output says rows_before is 98, not 100)
+    df_original = data.copy()
+
+    try:
+        data = process_data(data, config)
+    except ValueError:
+        sys.exit(1)
+
+    report = create_cleaning_report(df_before=df_original, df_after=data)
+
+    logger.info(
+        "Processing complete: %d → %d rows", report["rows_before"], report["rows_after"]
     )
 
-    data.to_csv(args.output, index=False)                       # blank 10: save the cleaned DataFrame as CSV
+    # blank 14: replace data.to_csv(...) with the new function (data, args.output)
+    save_data(data, args.output)
     logger.info("Saved cleaned data to %s", args.output)
+
+    # blank 15: the assignment says the report print goes LAST in main()
+    print(report)
 
 
 if __name__ == "__main__":
