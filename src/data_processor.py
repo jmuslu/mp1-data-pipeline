@@ -62,13 +62,13 @@ def remove_outliers(df, columns, method, threshold):
             upper = q3 + threshold * iqr                                  # blank H: upper bound, using threshold
             df = df[(df[column] >= lower) & (df[column] <= upper)]
             logger.debug(
-                "%s: lower=%s, upper=%s, removed=%d", column, lower, upper, before - len(df)
+                "%s: method=%s, threshold=%s, removed=%d", column, method, threshold, before - len(df)
             )
         else:
             z_scores = (df[column] - df[column].mean()) / df[column].std()                       # blank I: (value - mean) / std for the column
             df = df[z_scores.abs() <=threshold]                                       # blank J: keep rows where abs z-score <= threshold
             logger.debug(
-                "%s: zscore threshold=%s, removed=%d", column, threshold, before - len(df)
+                "%s: method=%s, threshold=%s, removed=%d", column, method, threshold, before - len(df)
             )
 
     return df

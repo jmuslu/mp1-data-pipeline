@@ -21,7 +21,7 @@ Output:
 21:47:18 INFO     __main__ — Validation complete: 100 -> 98 rows
 21:47:18 DEBUG    src.data_processor — remove_duplicates: 98 → 96 rows
 21:47:18 DEBUG    src.data_processor — handle_missing: 96 → 94 rows
-21:47:18 DEBUG    src.data_processor — rating: lower=43.625, upper=106.625, removed=2
+21:47:18 DEBUG    src.data_processor — rating: method=iqr, threshold=1.5, removed=2
 21:47:18 INFO     __main__ — Processing complete: 98 → 92 rows
 21:47:18 DEBUG    src.data_output — Saved 92 rows to output\clean.csv
 21:47:18 INFO     __main__ — Saved cleaned data to output/clean.csv
